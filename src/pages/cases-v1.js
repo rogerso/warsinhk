@@ -4,9 +4,10 @@ import SEO from "@/components/templates/SEO"
 import Layout from "@components/templates/Layout"
 import Typography from "@material-ui/core/Typography"
 import { graphql } from "gatsby"
-import { WarsCaseBoxContainer } from "@/components/organisms/CaseBoxContainer"
+import { WarsCaseCard } from "@components/organisms/CaseCard"
 import { isSSR } from "@/utils"
 import { ResponsiveWrapper } from "@components/atoms/ResponsiveWrapper"
+import InfiniteScroll from "@/components/modecules/InfiniteScroll"
 import MultiPurposeSearch from "@/components/modecules/MultiPurposeSearch"
 import { createDedupOptions } from "@/utils/search"
 import { PageContent } from "../components/atoms/Container"
@@ -77,6 +78,20 @@ const ConfirmedCasePage = props => {
     setFilteredCases(list)
   }
 
+  const infiniteScrollOnItem = item => (
+    <WarsCaseCard
+      node={item.node}
+      i18n={i18n}
+      t={t}
+      key={item.node.case_no}
+      isSelected={selectedCase === item.node.case_no}
+      ref={selectedCase === item.node.case_no ? selectedCard : null}
+      patientTrack={data.patient_track.group.filter(
+        t => t.fieldValue === item.node.case_no
+      )}
+    />
+  )
+
   return (
     <Layout>
       <SEO title="ConfirmedCasePage" />
@@ -93,7 +108,11 @@ const ConfirmedCasePage = props => {
       </PageContent>
 
       <ResponsiveWrapper>
-        <WarsCaseBoxContainer filteredCases={filteredCases} />
+        <InfiniteScroll
+          list={filteredCases}
+          step={{ mobile: 5, preload: preloadedCases }}
+          onItem={infiniteScrollOnItem}
+        />
       </ResponsiveWrapper>
     </Layout>
   )
